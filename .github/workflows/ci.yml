@@ -1,28 +1,36 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: http://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
+# GitHub Actions 워크플로우의 이름입니다.
 name: build
 
+# 어떤 이벤트가 발생했을 때 실행할지 정의합니다.
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # main 브랜치에 푸시될 때마다 실행
 
+# 실제 실행될 작업 단위입니다.
 jobs:
   build:
-
+    # 실행 환경을 최신 우분투 리눅스로 지정합니다.
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [10.x]
-        # See supported Node.js release Schedule at https://nodejs.org/en/about/releases/
+        # 실무 환경에 맞춰 Node.js 버전을 20.x 이상으로 권장합니다.
+        node-version: [20.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/checkout@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm test
-      
+      # 1. 현재 저장소의 코드를 가상 환경으로 가져옵니다. (v4 사용 권장)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 가상 환경에 Node.js를 설치합니다. (setup-node를 사용해야 함)
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm' # 실무 효율을 위해 npm 캐시 기능을 추가합니다.
+
+      # 3. 의존성 패키지를 설치합니다.
+      - run: npm install
+
+      # 4. 테스트 코드를 실행합니다.
+      - run: npm test
